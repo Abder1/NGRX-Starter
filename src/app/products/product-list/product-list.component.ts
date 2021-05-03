@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
 
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import * as ProductActions from '../state/product.actions';
 
 import { Product } from '../product';
 import { ProductService } from '../product.service';
-import { getShowProductCode } from '../state/product.reducer';
+import { getProducts, getShowProductCode } from '../state/product.reducer';
 
 @Component({
   selector: 'pm-product-list',
@@ -19,6 +20,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   displayCode: boolean;
 
   products: Product[];
+  products$: Observable<Product[]>;
 
   // Used to highlight the selected product in the list
   selectedProduct: Product | null;
@@ -31,10 +33,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
       currentProduct => this.selectedProduct = currentProduct
     );
 
-    this.productService.getProducts().subscribe({
-      next: (products: Product[]) => this.products = products,
-      error: err => this.errorMessage = err
-    });
+    this.products$ = this.store.select(getProducts);
+    this.store.dispatch(ProductActions.loadProducts());
 
     this.store.select(getShowProductCode).subscribe(
       showProductCode => this.displayCode = showProductCode
@@ -46,9 +46,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   checkChanged(): void {
-    this.store.dispatch(
-      {type: '[Product] Toggle Product Code'}
-    );
+    this.store.dispatch(ProductActions.toggleProduct());
   }
 
   newProduct(): void {

@@ -50,7 +50,7 @@ export const productReducer = createReducer(
       currentProduct: null
     }
   }),
-  
+
   on(ProductActions.initializeCurrentProduct, (state): ProductState => {
     return {
       ...state,
@@ -63,5 +63,12 @@ export const productReducer = createReducer(
       }
     }
   }),
+
+  on(ProductActions.loadProductsSuccess, (state,action): ProductState => {
+    return {
+      ...state,
+      products: action.products
+    }
+  })
 );
 
